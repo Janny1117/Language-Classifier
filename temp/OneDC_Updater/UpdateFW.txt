@@ -1,0 +1,8 @@
+2024/07/14 22:26:19.505Enter UpdateOmApSvcBroker
+2024/07/14 22:26:19.505local_OmApSvcBroker_Version : 1.0.2305.2601
+2024/07/14 22:26:22.193local_OmApSvcBroker_Version after replacement: 1.0.2407.0302
+2024/07/14 22:26:22.881Execute OmApSvcBroker
+2024/07/14 22:26:22.881HofixVersion[1] : 0045
+2024/07/14 22:26:22.897HofixVersion[1] : 0045
+2024/09/06 20:12:58.808Enter UpdateKernCoreSys64
+2024/09/06 20:12:58.814This system doesn't run One Dragon Center
