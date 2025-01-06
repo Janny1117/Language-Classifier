@@ -12,5 +12,5 @@ def preprocess_data(input_file):
 # Run the function when the script is executed directly
 if __name__ == "__main__":
     # Ensure the file path is correct (use raw string or double backslashes)
-    data = preprocess_data(r"C:\Users\User\Downloads\MachineLearning\project\Language_Malay_English_dataset.csv")
+    data = preprocess_data(r"Language_Malay_English_dataset.csv")
     print(data.head())  # Print the first few rows of the processed data
