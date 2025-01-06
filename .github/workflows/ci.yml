@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
@@ -6,31 +6,23 @@ on:
       - main
 
 jobs:
-  test:
-    runs-on: ubuntu-latest  # Runs on Ubuntu Linux in GitHub Actions
-
+  train:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
+      - uses: actions/checkout@v2
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'  # Specify the Python version
-
+          python-version: 3.9
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Install dependencies from requirements.txt
-
-      - name: Run preprocessing
-        run: python src/preprocess.py
-
-      - name: Run training
+        run: pip install -r requirements.txt
+      - name: Train model
         run: python src/train.py
-
-      - name: Run evaluation
+      - name: Evaluate model
         run: python src/evaluate.py
-
-      - name: Run tests
-        run: pytest  # Ensure you have tests in place
+      - name: Visualize results
+        run: python src/visualize.py
+      - name: Explain model
+        run: python src/explain.py
+      - name: Deploy API
+        run: python src/api.py
