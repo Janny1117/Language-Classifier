@@ -1,0 +1,62 @@
+(defrule rule1
+(The-patient-has-a-sore-throat)
+(We-suspect-a-bacterial-infection)
+=>
+(assert(We-believe-the-patient-has-strep-throat)))
+
+
+(defrule rule2
+(The-patient's-temperature-is-40C)
+=>
+(assert(The-patient-has-a-fever)))
+
+
+(defrule rule3
+(The-patient-has-been-sick-over-a-month)
+(The-patient-has-a-fever)
+=>
+(assert(We-suspect-a-bacterial-infection)))
+
+
+
+Correct Steps :
+
+(assert(The-patient-has-a-sore-throat))
+
+(assert(We-suspect-a-bacterial-infection))
+
+(assert(The-patient's-temperature-is-40C))
+
+(assert(The-patient-has-been-sick-over-a-month))
+
+(assert(The-patient-has-a-fever))
+
+(defrule rule1
+(The-patient-has-a-sore-throat)
+(We-suspect-a-bacterial-infection)
+=>
+(assert(We-believe-the-patient-has-strep-throat)))
+
+(run)
+
+(defrule rule2
+(The-patient's-temperature-is-40C)
+=>
+(assert(The-patient-has-a-fever)))
+
+(run)
+
+(defrule rule3
+(The-patient-has-been-sick-over-a-month)
+(The-patient-has-a-fever)
+=>
+(assert(We-suspect-a-bacterial-infection)))
+
+(run)
+
+(defrule rule4
+(The-patient's-temperature-is-40C)
+(The-patient-has-a-sore-throat)
+(The-patient-has-been-sick-over-a-month)
+=>
+(assert(We-believe-the-patient-has-strep-throat)))

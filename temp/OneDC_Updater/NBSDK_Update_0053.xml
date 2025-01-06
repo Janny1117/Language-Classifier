@@ -1,0 +1,12 @@
+[UPGRADE_FILE]
+Name = 
+Version = 
+Level = High
+Model = 
+
+[Hotfix]
+Download = UPDATEBIOS_1.0.2403.1401.zip
+Filename = UPDATEBIOS.exe
+Version = 0043
+Model = 
+
