@@ -1,15 +1,16 @@
-# Example code
+import pandas as pd
+
 def preprocess_data(input_file):
-    # You might load data first
+    # Load data from CSV file
     data = pd.read_csv(input_file)
     
-    # Perform data processing
-    # (make sure this step creates the 'processed_data' variable)
-    processed_data = data.dropna()  # Just an example of processing
+    # Example of data processing: removing rows with missing values
+    processed_data = data.dropna()
     
     return processed_data
 
-# Run the function
+# Run the function when the script is executed directly
 if __name__ == "__main__":
-    data = preprocess_data('input_file.csv')
-    print(data.head())  # To check the first few rows of the processed data
+    # Ensure the file path is correct (use raw string or double backslashes)
+    data = preprocess_data(r"C:\Users\User\Downloads\MachineLearning\Final Project\Language( Malay & English )_dataset.csv")
+    print(data.head())  # Print the first few rows of the processed data
