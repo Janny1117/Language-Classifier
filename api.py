@@ -1,5 +1,4 @@
-import logging
-from flask import Flask, request, jsonify, Response
+from flask import Flask, request, jsonify, Response, send_from_directory  # Add send_from_directory
 import joblib
 import os
 from werkzeug.utils import secure_filename
@@ -8,12 +7,22 @@ import re
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from prometheus_client import Counter, Gauge, generate_latest, CONTENT_TYPE_LATEST
 import time
+from flasgger import Swagger
+import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, handlers=[logging.StreamHandler()])
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
+
+# Configure Swagger
+app.config['SWAGGER'] = {
+    'title': 'Language Detection API',
+    'description': 'API for detecting the language of text in PDF files',
+    'uiversion': 3
+}
+Swagger(app)
 
 # Increase the maximum allowed payload size to 16 MB (or adjust as needed)
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
@@ -108,6 +117,13 @@ def analyze_mixed_language(text):
 
 @app.route('/')
 def home():
+    """
+    Home endpoint
+    ---
+    responses:
+      200:
+        description: A welcome message
+    """
     return "Language Detection App is running!"
 
 @app.route('/metrics')
@@ -131,7 +147,40 @@ def after_request(response):
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    """Handle file upload and language prediction."""
+    """
+    Handle file upload and language prediction.
+    ---
+    consumes:
+      - multipart/form-data
+    parameters:
+      - name: file
+        in: formData
+        type: file
+        required: true
+        description: The PDF file to analyze
+    responses:
+      200:
+        description: Analysis result
+        schema:
+          type: object
+          properties:
+            malay_percentage:
+              type: number
+              description: Percentage of Malay words
+            english_percentage:
+              type: number
+              description: Percentage of English words
+            dominant_language:
+              type: string
+              description: Dominant language (MS or EN)
+            file_path:
+              type: string
+              description: Path to the saved file
+      400:
+        description: Invalid file or no file uploaded
+      500:
+        description: Internal server error
+    """
     try:
         logger.info("File upload request received")
         if 'file' not in request.files:
@@ -179,6 +228,82 @@ def predict():
     except Exception as e:
         logger.error(f"Error in /predict endpoint: {e}")
         return jsonify({'error': str(e)}), 500
+
+@app.route('/list-files', methods=['GET'])
+def list_files():
+    """
+    List all files in the uploads directory, optionally filtered by language.
+    ---
+    parameters:
+      - name: language
+        in: query
+        type: string
+        required: false
+        description: Filter files by language (e.g., 'en' or 'ms').
+    responses:
+      200:
+        description: List of files.
+        schema:
+          type: object
+          properties:
+            files:
+              type: array
+              items:
+                type: string
+              description: List of file paths.
+    """
+    language = request.args.get('language', '').lower()  # Get the language filter from query parameters
+    files = []
+
+    # If a language is specified, list files only from that language folder
+    if language:
+        language_folder = os.path.join(app.config['UPLOAD_FOLDER'], language)
+        if os.path.exists(language_folder):
+            for filename in os.listdir(language_folder):
+                files.append(os.path.join(language_folder, filename))
+    else:
+        # If no language is specified, list all files in the uploads folder
+        for root, _, filenames in os.walk(app.config['UPLOAD_FOLDER']):
+            for filename in filenames:
+                files.append(os.path.join(root, filename))
+
+    return jsonify({'files': files})
+
+@app.route('/download-file', methods=['GET'])
+def download_file():
+    """
+    Download a specific file by its path.
+    ---
+    parameters:
+      - name: path
+        in: query
+        type: string
+        required: true
+        description: The path of the file to download (e.g., 'uploads/en/file1.pdf').
+    responses:
+      200:
+        description: The requested file.
+      404:
+        description: File not found.
+    """
+    file_path = request.args.get('path')
+    if not file_path:
+        return jsonify({'error': 'File path is required'}), 400
+
+    # Ensure the file path is within the uploads folder for security
+    if not file_path.startswith(app.config['UPLOAD_FOLDER']):
+        return jsonify({'error': 'Invalid file path'}), 400
+
+    # Get the directory and filename
+    directory = os.path.dirname(file_path)
+    filename = os.path.basename(file_path)
+
+    # Check if the file exists
+    if not os.path.exists(file_path):
+        return jsonify({'error': 'File not found'}), 404
+
+    # Send the file to the user
+    return send_from_directory(directory, filename, as_attachment=True)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=False)
