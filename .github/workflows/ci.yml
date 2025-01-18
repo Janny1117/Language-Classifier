@@ -10,26 +10,36 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.8'
 
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+        env:
+          PIP_DEFAULT_TIMEOUT: 120  # Increase timeout for slow connections
 
       - name: Train Model
         run: |
-          python train_model.py  # Adjust to your training script
+          echo "Training Model..."
+          python train_model.py
+        env:
+          TRAINING_DATA_PATH: ${{ secrets.TRAINING_DATA_PATH }}  # Example: Use secrets for sensitive data
 
       - name: Test Model
         run: |
-          python test_model.py  # Adjust to your test script
+          echo "Testing Model..."
+          python test_model.py
 
       - name: Deploy Model
         run: |
           echo "Deploying Model..."
-          # Your deployment command, e.g., push to a cloud service
+          # Example: Push model to a cloud service
+          # aws sagemaker create-model --model-name my-model --primary-container Image=my-docker-image
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
