@@ -8,53 +8,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout code
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      # Step 2: Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: '3.8'
 
-      # Step 3: Install dependencies
       - name: Install dependencies
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pip install --upgrade pip
           pip install -r requirements.txt
 
-      # Step 4: Lint code
-      - name: Lint with flake8
+      - name: Train Model
         run: |
-          pip install flake8
-          flake8 . --count --max-line-length=88 --statistics
+          python train_model.py  # Adjust to your training script
 
-      # Step 5: Run unit tests
-      - name: Run tests
+      - name: Test Model
         run: |
-          pip install pytest
-          pytest tests/
+          python test_model.py  # Adjust to your test script
 
-      # Step 6: Train the model
-      - name: Train the model
+      - name: Deploy Model
         run: |
-          python train_model.py
-
-      # Step 7: Save the model artifact
-      - name: Save trained model
-        uses: actions/upload-artifact@v3
-        with:
-          name: trained-model
-          path: model/  # Adjust the path to your trained model directory
-
-      # Step 8: Deploy the model
-      - name: Deploy the model
-        run: |
-          echo "Deploying the model..."
-          # Add deployment commands, e.g., upload to AWS S3 or Kubernetes
-
+          echo "Deploying Model..."
+          # Your deployment command, e.g., push to a cloud service
