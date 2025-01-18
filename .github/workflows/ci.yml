@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: MLOps CI/CD Pipeline
 
 on:
   push:
@@ -6,23 +6,30 @@ on:
       - main
 
 jobs:
-  train:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.9
+          python-version: '3.8'
+
       - name: Install dependencies
-        run: pip install -r requirements.txt
-      - name: Train model
-        run: python src/train.py
-      - name: Evaluate model
-        run: python src/evaluate.py
-      - name: Visualize results
-        run: python src/visualize.py
-      - name: Explain model
-        run: python src/explain.py
-      - name: Deploy API
-        run: python src/api.py
+        run: |
+          pip install -r requirements.txt
+
+      - name: Train Model
+        run: |
+          python train_model.py  # Adjust to your training script
+
+      - name: Test Model
+        run: |
+          python test_model.py  # Adjust to your test script
+
+      - name: Deploy Model
+        run: |
+          echo "Deploying Model..."
+          # Your deployment command, e.g., push to a cloud service
