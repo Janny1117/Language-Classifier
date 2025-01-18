@@ -28,7 +28,11 @@ def train_and_save_models(X_train, y_train):
 
 if __name__ == "__main__":
     # Load the preprocessed data
-    data = pd.read_csv("data/preprocessed_data.csv")
+    try:
+        data = pd.read_csv("data/preprocessed_data.csv")
+    except FileNotFoundError:
+        print("Error: Preprocessed data file not found. Run preprocess.py first.")
+        raise
 
     # Split data into features and labels
     X = data['query']  # Use 'query' as the feature column

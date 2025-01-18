@@ -31,11 +31,8 @@ def preprocess_data(input_file):
     # Clean text in the 'query' column
     processed_data['query'] = processed_data['query'].fillna("").apply(clean_text)  # Fill NaN with empty string
 
-    # Ensure the 'data' directory exists
-    os.makedirs("data", exist_ok=True)
-
     # Save the preprocessed data to a new CSV file
-    processed_data.to_csv("data/preprocessed_data.csv", index=False)
+    processed_data.to_csv(r"data/preprocessed_data.csv", index=False)
 
     return processed_data
 
@@ -50,8 +47,8 @@ def clean_text(text):
     return text
 
 if __name__ == "__main__":
-    # Define the file path (relative to the notebook instance)
-    file_path = "Language_Malay_English_dataset.csv"
+    # Define the absolute file path
+    file_path = r"C:\Users\User\Downloads\MachineLearning\project\data\Language_Malay_English_dataset.csv"
 
     # Run the preprocessing function
     data = preprocess_data(file_path)
