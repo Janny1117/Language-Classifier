@@ -1,5 +1,6 @@
 # Use a Python base image
 FROM python:3.8-slim
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libgl1 \
