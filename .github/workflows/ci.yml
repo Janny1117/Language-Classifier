@@ -10,10 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.ACCESS_TOKEN }}  # Use PAT for private repositories
+
+      - name: Debug Repository
+        run: |
+          echo "Repository URL: $GITHUB_REPOSITORY"
+          echo "Branch: $GITHUB_REF"
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: '3.8'
 
@@ -23,13 +30,13 @@ jobs:
 
       - name: Train Model
         run: |
-          python train_model.py  # Adjust to your training script
+          python train_model.py
 
       - name: Test Model
         run: |
-          python test_model.py  # Adjust to your test script
+          python test_model.py
 
       - name: Deploy Model
         run: |
           echo "Deploying Model..."
-          # Your deployment command, e.g., push to a cloud service
+          # Add deployment commands here
