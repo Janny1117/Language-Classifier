@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, Response, send_from_directory  # Add send_from_directory
+from flask import Flask, request, jsonify, Response, send_from_directory, render_template
 import joblib
 import os
 from werkzeug.utils import secure_filename
@@ -124,7 +124,16 @@ def home():
       200:
         description: A welcome message
     """
-    return "Language Detection App is running!"
+    # List files when rendering the home page
+    files = []
+    for root, _, filenames in os.walk(app.config['UPLOAD_FOLDER']):
+        for filename in filenames:
+            files.append({
+                'name': filename,
+                'language': os.path.basename(root),
+                'path': os.path.join(root, filename)
+            })
+    return render_template('index.html', files=files)
 
 @app.route('/metrics')
 def metrics():
@@ -215,59 +224,24 @@ def predict():
             os.rename(file_path, new_file_path)
             logger.info(f"File moved to: {new_file_path}")
 
-            # Return the analysis result
-            return jsonify({
-                'malay_percentage': analysis_result['malay_percentage'],
-                'english_percentage': analysis_result['english_percentage'],
-                'dominant_language': analysis_result['dominant_language'],
-                'file_path': new_file_path
-            })
+            # List files after moving the new file
+            files = []
+            for root, _, filenames in os.walk(app.config['UPLOAD_FOLDER']):
+                for filename in filenames:
+                    files.append({
+                        'name': filename,
+                        'language': os.path.basename(root),
+                        'path': os.path.join(root, filename)
+                    })
+
+            # Render the result in the template
+            return render_template('index.html', result=analysis_result, files=files)
 
         logger.error("Invalid file type")
         return jsonify({'error': 'Invalid file type'}), 400
     except Exception as e:
         logger.error(f"Error in /predict endpoint: {e}")
         return jsonify({'error': str(e)}), 500
-
-@app.route('/list-files', methods=['GET'])
-def list_files():
-    """
-    List all files in the uploads directory, optionally filtered by language.
-    ---
-    parameters:
-      - name: language
-        in: query
-        type: string
-        required: false
-        description: Filter files by language (e.g., 'en' or 'ms').
-    responses:
-      200:
-        description: List of files.
-        schema:
-          type: object
-          properties:
-            files:
-              type: array
-              items:
-                type: string
-              description: List of file paths.
-    """
-    language = request.args.get('language', '').lower()  # Get the language filter from query parameters
-    files = []
-
-    # If a language is specified, list files only from that language folder
-    if language:
-        language_folder = os.path.join(app.config['UPLOAD_FOLDER'], language)
-        if os.path.exists(language_folder):
-            for filename in os.listdir(language_folder):
-                files.append(os.path.join(language_folder, filename))
-    else:
-        # If no language is specified, list all files in the uploads folder
-        for root, _, filenames in os.walk(app.config['UPLOAD_FOLDER']):
-            for filename in filenames:
-                files.append(os.path.join(root, filename))
-
-    return jsonify({'files': files})
 
 @app.route('/download-file', methods=['GET'])
 def download_file():
